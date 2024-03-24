@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS project.Car CASCADE;
 DROP TABLE IF EXISTS project.Driver CASCADE;
 DROP TABLE IF EXISTS project.Loyalty_card CASCADE;
 DROP TABLE IF EXISTS project.Client CASCADE;
+DROP TABLE IF EXISTS project.Payment CASCADE;
+
 
 CREATE TABLE project.Tariff (
   tf_name VARCHAR(64) PRIMARY KEY,
@@ -42,7 +44,7 @@ CREATE TABLE project.Client (
   ID_user INT PRIMARY KEY,
   card_number INT REFERENCES project.Loyalty_card(card_number),
   full_name VARCHAR(255) NOT NULL,
-  phone_number INT NOT NULL,
+  phone_number VARCHAR(32) NOT NULL,
   email VARCHAR(64) NOT NULL
 );
 
@@ -57,6 +59,15 @@ CREATE TABLE project.Ord (
   start_time TIMESTAMP NOT NULL,
   end_time TIMESTAMP NOT NULL,
   status VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE Payment (
+  ID_payment int PRIMARY KEY,
+  card_number INTEGER REFERENCES Loyalty_card(card_number),
+  ID_order INTEGER REFERENCES Order(ID_order),
+  total_payment DECIMAL(10,2) NOT NULL,
+  date DATE NOT NULL,
+  payment_method VARCHAR(50) NOT NULL
 );
 
 INSERT INTO project.Tariff (tf_name, price_for_km, basic_cost, modifier)
@@ -160,5 +171,23 @@ INSERT INTO project.Loyalty_card (card_number, bonus, create_date) VALUES
 (1013, 850, '2024-01-01'),
 (1014, 550, '2024-02-05'),
 (1015, 1050, '2024-03-10');
+
+INSERT INTO project.Client (ID_user, card_number, full_name, phone_number, email) VALUES
+(1, 1001, 'Иван Иванов', '+1234567890', 'ivanov@example.com'),
+(2, 1002, 'Алексей Смирнов', '+9876543210', 'smirnov@example.com'),
+(3, 1003, 'Мария Петрова', '+1122334455', 'petrova@example.com'),
+(4, 1004, 'Елена Кузнецова', '+9988776655', 'kuznetsova@example.com'),
+(5, 1005, 'Александр Соколов', '+5544332211', 'sokolov@example.com'),
+(6, 1006, 'Ольга Михайлова', '+7766554433', 'mikhailova@example.com'),
+(7, 1007, 'Дмитрий Новиков', '+8877665544', 'novikov@example.com'),
+(8, 1008, 'Наталья Волкова', '+1234432156', 'volkova@example.com'),
+(9, 1009, 'Андрей Козлов', '+6598741230', 'kozlov@example.com'),
+(10, 1010, 'Екатерина Лебедева', '+1234567890', 'lebedeva@example.com'),
+(11, 1011, 'Анна Семенова', '+9876543210', 'semenova@example.com'),
+(12, 1012, 'Павел Егоров', '+1122334455', 'egorov@example.com'),
+(13, 1013, 'Валентина Павлова', '+9988776655', 'pavlova@example.com'),
+(14, 1014, 'Ирина Федорова', '+5544332211', 'fedorova@example.com'),
+(15, 1015, 'Сергей Николаев', '+7766554433', 'nikolaev@example.com');
+
 
 
