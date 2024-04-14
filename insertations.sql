@@ -19,7 +19,8 @@ CREATE TABLE project.Tariff (
 CREATE TABLE project.Car (
   num VARCHAR(16) PRIMARY KEY,
   model VARCHAR(64) NOT NULL,
-  cond INT NOT NULL
+  cond INT NOT NULL,
+  mileage INT NOT NULL
 );
 
 CREATE TABLE project.Driver (
@@ -50,8 +51,22 @@ CREATE TABLE project.Client (
   email VARCHAR(64) NOT NULL
 );
 
+-- CREATE TABLE project.Ord (
+--   ID_ord INT PRIMARY KEY,
+--   ID_user INTEGER REFERENCES project.Client(ID_user),
+--   ID_driver INTEGER REFERENCES project.Driver(ID_driver),
+--   car_number VARCHAR(16) REFERENCES project.Car(num),
+--   tariff_name VARCHAR(64) REFERENCES project.Tariff(tf_name),
+--   start_address VARCHAR(255) NOT NULL,
+--   end_address VARCHAR(255) NOT NULL,
+--   start_time TIMESTAMP NOT NULL,
+--   end_time TIMESTAMP NOT NULL,
+--   status VARCHAR(64) NOT NULL,
+--   distance_km FLOAT NOT NULL
+-- );
+
 CREATE TABLE project.Ord (
-  ID_ord INT PRIMARY KEY,
+  ID_ord SERIAL PRIMARY KEY,
   ID_user INTEGER REFERENCES project.Client(ID_user),
   ID_driver INTEGER REFERENCES project.Driver(ID_driver),
   car_number VARCHAR(16) REFERENCES project.Car(num),
@@ -91,7 +106,37 @@ AFTER INSERT OR UPDATE ON project.Payment
 FOR EACH ROW
 EXECUTE PROCEDURE update_bonus();
 
+CREATE OR REPLACE FUNCTION calculate_total_payment() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.total_payment = (
+    SELECT tf.modifier * tf.price_for_km * o.distance_km + tf.basic_cost
+    FROM project.Tariff tf
+    JOIN project.Ord o ON tf.tf_name = o.tariff_name
+    WHERE o.ID_ord = NEW.ID_order
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
+CREATE TRIGGER calculate_payment_trigger
+BEFORE INSERT OR UPDATE ON project.Payment
+FOR EACH ROW
+EXECUTE PROCEDURE calculate_total_payment();
+
+      
+CREATE OR REPLACE FUNCTION update_car_mileage() RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE project.Car
+  SET mileage = mileage + NEW.distance_km
+  WHERE num = NEW.car_number;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_mileage_trigger
+AFTER INSERT OR UPDATE ON project.Ord
+FOR EACH ROW
+EXECUTE PROCEDURE update_car_mileage();
 
 INSERT INTO project.Tariff (tf_name, price_for_km, basic_cost, modifier)
 VALUES
@@ -111,38 +156,37 @@ VALUES
 ('Раритетный автомобиль', 300, 200, 1),
 ('Вечерний', 200, 130, 11);
 
-INSERT INTO project.Car (num, model, cond) VALUES
-('ABC123', 'Toyota Camry', 4),
-('DEF456', 'Honda Accord', 3),
-('GHI789', 'Ford Fusion', 2),
-('JKL101', 'Nissan Altima', 5),
-('MNO234', 'Hyundai Sonata', 4),
-('PQR567', 'Chevrolet Malibu', 3),
-('STU890', 'Kia Optima', 2),
-('VWX123', 'Volkswagen Jetta', 5),
-('YZA456', 'Mazda3', 4),
-('BCD789', 'Subaru Legacy', 3),
-('CDE101', 'Mitsubishi Lancer', 2),
-('EFG234', 'BMW 3 Series', 5),
-('GHI567', 'Mercedes-Benz C-Class', 4),
-('IJK890', 'Audi A4', 3),
-('KLM123', 'Lexus ES', 2),
-('NOP456', 'Toyota Camry', 3),
-('QRS789', 'Honda Accord', 2),
-('TUV012', 'Ford Focus', 4),
-('XYZ345', 'Chevrolet Malibu', 5),
-('ABC678', 'Toyota Camry', 1),
-('DEF901', 'Honda Accord', 3),
-('GHI234', 'Ford Focus', 2),
-('JKL567', 'Chevrolet Malibu', 5),
-('MNO890', 'Toyota Camry', 4),
-('PQR123', 'Honda Accord', 1),
-('STU456', 'Ford Focus', 3),
-('VWX789', 'Chevrolet Malibu', 2),
-('YZA012', 'Toyota Camry', 5),
-('IJK345', 'Honda Accord', 4),
-('BCD678', 'Ford Focus', 1);
-
+INSERT INTO project.Car (num, model, cond, mileage) VALUES
+('ABC123', 'Toyota Camry', 4, 50000),
+('DEF456', 'Honda Accord', 3, 60000),
+('GHI789', 'Ford Fusion', 2, 70000),
+('JKL101', 'Nissan Altima', 5, 55000),
+('MNO234', 'Hyundai Sonata', 4, 65000),
+('PQR567', 'Chevrolet Malibu', 3, 55000),
+('STU890', 'Kia Optima', 2, 75000),
+('VWX123', 'Volkswagen Jetta', 5, 60000),
+('YZA456', 'Mazda3', 4, 50000),
+('BCD789', 'Subaru Legacy', 3, 80000),
+('CDE101', 'Mitsubishi Lancer', 2, 70000),
+('EFG234', 'BMW 3 Series', 5, 60000),
+('GHI567', 'Mercedes-Benz C-Class', 4, 55000),
+('IJK890', 'Audi A4', 3, 65000),
+('KLM123', 'Lexus ES', 2, 70000),
+('NOP456', 'Toyota Camry', 3, 60000),
+('QRS789', 'Honda Accord', 2, 55000),
+('TUV012', 'Ford Focus', 4, 80000),
+('XYZ345', 'Chevrolet Malibu', 5, 75000),
+('ABC678', 'Toyota Camry', 1, 70000),
+('DEF901', 'Honda Accord', 3, 65000),
+('GHI234', 'Ford Focus', 2, 60000),
+('JKL567', 'Chevrolet Malibu', 5, 55000),
+('MNO890', 'Toyota Camry', 4, 70000),
+('PQR123', 'Honda Accord', 1, 60000),
+('STU456', 'Ford Focus', 3, 55000),
+('VWX789', 'Chevrolet Malibu', 2, 70000),
+('YZA012', 'Toyota Camry', 5, 75000),
+('IJK345', 'Honda Accord', 4, 60000),
+('BCD678', 'Ford Focus', 1, 55000);
 
 INSERT INTO project.Driver (ID_driver, car_number, full_name, phone_number, basic_fee, email, start_date) VALUES
 (1, 'ABC123', 'John Doe', '+1234567890', 100, 'johndoe@example.com', '2024-01-01'),
