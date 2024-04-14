@@ -5,7 +5,9 @@ DROP TABLE IF EXISTS project.Driver CASCADE;
 DROP TABLE IF EXISTS project.Loyalty_card CASCADE;
 DROP TABLE IF EXISTS project.Client CASCADE;
 DROP TABLE IF EXISTS project.Payment CASCADE;
+DROP SCHEMA IF EXISTS project;
 
+CREATE SCHEMA project;
 
 CREATE TABLE project.Tariff (
   tf_name VARCHAR(64) PRIMARY KEY,
@@ -222,4 +224,3 @@ INSERT INTO project.Payment (ID_payment, card_number, ID_order, total_payment, p
 (13, 1013, 13, 200.00, '2025-01-01', 'Кредитная карта'),
 (14, 1014, 14, 320.00, '2025-02-05', 'Дебетовая карта'),
 (15, 1015, 15, 80.00, '2025-03-10', 'Кредитная карта');
-
