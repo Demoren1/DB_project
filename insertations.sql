@@ -51,19 +51,6 @@ CREATE TABLE project.Client (
   email VARCHAR(64) NOT NULL
 );
 
--- CREATE TABLE project.Ord (
---   ID_ord INT PRIMARY KEY,
---   ID_user INTEGER REFERENCES project.Client(ID_user),
---   ID_driver INTEGER REFERENCES project.Driver(ID_driver),
---   car_number VARCHAR(16) REFERENCES project.Car(num),
---   tariff_name VARCHAR(64) REFERENCES project.Tariff(tf_name),
---   start_address VARCHAR(255) NOT NULL,
---   end_address VARCHAR(255) NOT NULL,
---   start_time TIMESTAMP NOT NULL,
---   end_time TIMESTAMP NOT NULL,
---   status VARCHAR(64) NOT NULL,
---   distance_km FLOAT NOT NULL
--- );
 
 CREATE TABLE project.Ord (
   ID_ord SERIAL PRIMARY KEY,
