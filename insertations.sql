@@ -51,6 +51,7 @@ CREATE TABLE project.Client (
   email VARCHAR(64) NOT NULL
 );
 
+<<<<<<< HEAD
 -- CREATE TABLE project.Ord (
 --   ID_ord INT PRIMARY KEY,
 --   ID_user INTEGER REFERENCES project.Client(ID_user),
@@ -64,6 +65,8 @@ CREATE TABLE project.Client (
 --   status VARCHAR(64) NOT NULL,
 --   distance_km FLOAT NOT NULL
 -- );
+=======
+>>>>>>> udeneev_branch
 
 CREATE TABLE project.Ord (
   ID_ord SERIAL PRIMARY KEY,
